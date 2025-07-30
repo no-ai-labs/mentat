@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAG 생성 기능 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #374151;
+            margin-top: 0;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .loading {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .example-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .example-btn {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .example-btn:hover {
+            background: #e5e7eb;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .status.online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Mentat DAG 생성 기능 테스트</h1>
+        
+        <!-- 서버 상태 확인 -->
+        <div class="test-section">
+            <h3>🔍 서버 상태 확인</h3>
+            <button onclick="checkServerStatus()">서버 상태 확인</button>
+            <div id="serverStatus" class="status">확인 중...</div>
+        </div>
+
+        <!-- DAG 생성 테스트 -->
+        <div class="test-section">
+            <h3>✨ DAG 생성 테스트</h3>
+            
+            <div class="example-buttons">
+                <button class="example-btn" onclick="setPrompt('뉴스 기사를 가져와서 요약해주는 시스템을 만들어줘')">
+                    📰 뉴스 요약 시스템
+                </button>
+                <button class="example-btn" onclick="setPrompt('CSV 파일을 분석해서 차트로 보여주는 워크플로우 만들어줘')">
+                    📊 데이터 분석 워크플로우
+                </button>
+                <button class="example-btn" onclick="setPrompt('API를 호출해서 결과를 테이블로 정리해주는 시스템 만들어줘')">
+                    🌐 API 테스트 시스템
+                </button>
+                <button class="example-btn" onclick="setPrompt('회의 내용을 입력받아서 요약하고 액션 아이템을 추출해줘')">
+                    📝 회의록 정리
+                </button>
+            </div>
+            
+            <textarea id="promptInput" placeholder="원하는 워크플로우를 자연어로 설명해주세요..."></textarea>
+            
+            <div style="margin-top: 10px;">
+                <label>
+                    최대 노드 수: 
+                    <input type="range" id="maxNodes" min="3" max="15" value="8" 
+                           oninput="document.getElementById('maxNodesValue').textContent = this.value">
+                    <span id="maxNodesValue">8</span>
+                </label>
+            </div>
+            
+            <button onclick="generateDAG()" id="generateBtn">✨ DAG 생성</button>
+            <div id="dagResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- API 직접 테스트 -->
+        <div class="test-section">
+            <h3>🔧 API 직접 테스트</h3>
+            <p>백엔드 API를 직접 호출하여 응답을 확인합니다.</p>
+            <button onclick="testAPI()">API 테스트 실행</button>
+            <div id="apiResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- 프론트엔드 기능 테스트 -->
+        <div class="test-section">
+            <h3>🎨 프론트엔드 기능 테스트</h3>
+            <p>Vue Flow 변환 및 UI 기능을 테스트합니다.</p>
+            <button onclick="testFrontendFeatures()">프론트엔드 기능 테스트</button>
+            <div id="frontendResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        
+        // 서버 상태 확인
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            statusDiv.textContent = '확인 중...';
+            statusDiv.className = 'status';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/dag/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: 'test', options: { maxNodes: 3 } })
+                });
+                
+                if (response.ok || response.status === 400) {
+                    statusDiv.textContent = '✅ 백엔드 서버 온라인 (포트 8080)';
+                    statusDiv.className = 'status online';
+                } else {
+                    statusDiv.textContent = `❌ 백엔드 서버 오류 (${response.status})`;
+                    statusDiv.className = 'status offline';
+                }
+            } catch (error) {
+                statusDiv.textContent = `❌ 백엔드 서버 오프라인: ${error.message}`;
+                statusDiv.className = 'status offline';
+            }
+        }
+        
+        // 프롬프트 설정
+        function setPrompt(prompt) {
+            document.getElementById('promptInput').value = prompt;
+        }
+        
+        // DAG 생성 테스트
+        async function generateDAG() {
+            const promptInput = document.getElementById('promptInput');
+            const maxNodes = document.getElementById('maxNodes').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const resultDiv = document.getElementById('dagResult');
+            
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                alert('프롬프트를 입력해주세요!');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = '생성 중...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🚀 DAG 생성 중...\n\n요청 데이터:\n' + JSON.stringify({
+                prompt: prompt,
+                options: { maxNodes: parseInt(maxNodes) }
+            }, null, 2);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/dag/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        options: { maxNodes: parseInt(maxNodes) }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = '✅ DAG 생성 성공!\n\n' + JSON.stringify(result, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ DAG 생성 실패!\n\n응답 코드: ${response.status}\n\n` + JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 네트워크 오류!\n\n${error.message}`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '✨ DAG 생성';
+            }
+        }
+        
+        // API 직접 테스트
+        async function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔧 API 테스트 중...';
+            
+            try {
+                const testData = {
+                    prompt: "간단한 테스트 워크플로우",
+                    options: { maxNodes: 5 }
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/dag/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `📡 API 응답 받음!\n\n상태 코드: ${response.status}\n응답 헤더: ${JSON.stringify(Object.fromEntries(response.headers), null, 2)}\n\n응답 데이터:\n${JSON.stringify(result, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API 테스트 실패!\n\n${error.message}`;
+            }
+        }
+        
+        // 프론트엔드 기능 테스트
+        async function testFrontendFeatures() {
+            const resultDiv = document.getElementById('frontendResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🎨 프론트엔드 기능 테스트 중...';
+            
+            try {
+                // 모의 DAG 데이터 생성
+                const mockDag = {
+                    nodes: [
+                        {
+                            id: 'prompt-1',
+                            type: 'promptNode',
+                            position: { x: 100, y: 100 },
+                            data: { prompt: '테스트 프롬프트', title: '프롬프트 노드' }
+                        },
+                        {
+                            id: 'agent-1',
+                            type: 'agentNode',
+                            position: { x: 400, y: 100 },
+                            data: { prompt: 'AI 처리', title: '에이전트 노드' }
+                        }
+                    ],
+                    edges: [
+                        {
+                            id: 'edge-1',
+                            source: 'prompt-1',
+                            target: 'agent-1',
+                            type: 'smoothstep'
+                        }
+                    ],
+                    metadata: {
+                        description: '테스트 워크플로우',
+                        estimatedExecutionTime: '1분',
+                        complexity: 'simple'
+                    }
+                };
+                
+                // Vue Flow 형식 변환 테스트
+                const convertedNodes = mockDag.nodes.map(node => ({
+                    id: node.id,
+                    type: node.type,
+                    position: node.position,
+                    data: { ...node.data, id: node.id }
+                }));
+                
+                const convertedEdges = mockDag.edges.map(edge => ({
+                    id: edge.id,
+                    source: edge.source,
+                    target: edge.target,
+                    type: edge.type || 'smoothstep',
+                    animated: true,
+                    style: { 
+                        stroke: '#3b82f6', 
+                        strokeWidth: 3,
+                        strokeDasharray: '5,5'
+                    }
+                }));
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 프론트엔드 기능 테스트 성공!\n\n변환된 노드:\n${JSON.stringify(convertedNodes, null, 2)}\n\n변환된 엣지:\n${JSON.stringify(convertedEdges, null, 2)}\n\n메타데이터:\n${JSON.stringify(mockDag.metadata, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 프론트엔드 기능 테스트 실패!\n\n${error.message}`;
+            }
+        }
+        
+        // 페이지 로드 시 서버 상태 확인
+        window.addEventListener('load', checkServerStatus);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: mentat-backend
+  
+server:
+  port: 8080
+  
+logging:
+  level:
+    root: INFO
+    io.mentat: DEBUG 

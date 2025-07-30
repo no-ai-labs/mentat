@@ -1,0 +1,69 @@
+{
+  "company": {
+    "name": "멘타트 테크놀로지",
+    "founded": 2023,
+    "industry": "AI/소프트웨어",
+    "location": {
+      "city": "서울",
+      "country": "대한민국",
+      "address": "강남구 테헤란로 123"
+    }
+  },
+  "employees": [
+    {
+      "id": 1,
+      "name": "김철수",
+      "position": "CEO",
+      "department": "경영진",
+      "skills": ["전략기획", "투자유치", "팀관리"],
+      "contact": {
+        "email": "kim@mentat.tech",
+        "phone": "010-1234-5678"
+      }
+    },
+    {
+      "id": 2,
+      "name": "이영희",
+      "position": "CTO",
+      "department": "기술팀",
+      "skills": ["AI/ML", "시스템아키텍처", "Python", "Vue.js"],
+      "contact": {
+        "email": "lee@mentat.tech",
+        "phone": "010-2345-6789"
+      }
+    },
+    {
+      "id": 3,
+      "name": "박민수",
+      "position": "프론트엔드 개발자",
+      "department": "개발팀",
+      "skills": ["JavaScript", "Vue.js", "React", "CSS"],
+      "contact": {
+        "email": "park@mentat.tech",
+        "phone": "010-3456-7890"
+      }
+    }
+  ],
+  "projects": [
+    {
+      "name": "멘타트 에디터",
+      "status": "개발중",
+      "tech_stack": ["Vue.js", "TipTap", "AI API"],
+      "team_size": 5,
+      "deadline": "2024-06-30"
+    },
+    {
+      "name": "AI 워크플로우 시스템",
+      "status": "기획단계",
+      "tech_stack": ["Python", "FastAPI", "PostgreSQL"],
+      "team_size": 8,
+      "deadline": "2024-12-31"
+    }
+  ],
+  "metrics": {
+    "total_employees": 3,
+    "active_projects": 2,
+    "revenue_2023": 150000000,
+    "growth_rate": 0.25
+  }
+} 

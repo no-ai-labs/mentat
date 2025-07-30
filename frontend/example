@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+
+' 시작
+start
+
+:AgentBlock\n(흐름 제어 + 코드 업로드);
+
+fork
+  :AgentBlock\n(FE 프롬프트 생성);
+  :AgentBlock\n(FE 코드 리팩터링);
+end fork
+
+fork
+  :AgentBlock\n(BE 프롬프트 생성);
+  :AgentBlock\n(BE 코드 리팩터링);
+end fork
+
+:MergeNode\n(정합성 조정);
+
+:AgentBlock\n(테스트 시나리오 생성);
+
+if (요약 보고서 생성?) then (예)
+  :AgentBlock\n(요약 보고서 생성);
+endif
+
+:PromptBlock\n(루프백);
+
+stop
+@enduml

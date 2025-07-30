@@ -1,0 +1,10 @@
+/* ===== GLOBAL STYLES ===== */
+@import './base.css';
+@import './editor.css';
+@import './blocks.css';
+@import './components.css';
+
+/* ===== TAILWIND CSS ===== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities; 

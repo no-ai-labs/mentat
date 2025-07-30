@@ -117,7 +117,9 @@ This project is currently in active development. Contributions are welcome!
 
 ## 📄 License
 
-[License information to be added]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 No AI Labs
 
 ---
 
